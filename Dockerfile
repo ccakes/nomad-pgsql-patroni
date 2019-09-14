@@ -1,14 +1,16 @@
-FROM alpine
+FROM alpine:3.10
 
 RUN  set -ex \
-  && apk -U add --no-cache postgresql python3 \
+  && apk -U add --no-cache postgresql postgresql-contrib python3 \
   \
   && apk add --no-cache \
     postgresql-dev python3-dev gcc musl-dev linux-headers curl \
   \
-  && pip3 install patroni[consul] awscli \
+  # && pip3 install awscli patroni[aws,consul] \
+  && pip3 install awscli python-consul \
+  && pip3 install https://github.com/ccakes/patroni/archive/master.zip \
   \
-  && curl -LO https://github.com/wal-g/wal-g/releases/download/v0.2.3/wal-g.linux-amd64.tar.gz \
+  && curl -LO https://github.com/wal-g/wal-g/releases/download/v0.2.12/wal-g.linux-amd64.tar.gz \
   && tar xf wal-g.linux-amd64.tar.gz \
   && rm -f wal-g.linux-amd64.tar.gz \
   && mv wal-g /usr/local/bin/ \
