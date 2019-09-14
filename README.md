@@ -4,10 +4,12 @@ A simple container running Alpine, Postgres and Patroni useful for dropping dire
 
 It also contains some helpers for ongoing maintenance
 
-- **awscli**
+- **awscli**<br />
   So the same container image can be used in backup jobs
-- **[wal-g](https://github.com/wal-g/wal-g)**
-  See link
+- **wal-g**<br />
+  See here for more info - https://github.com/wal-g/wal-g
+- **timescaledb**<br />
+  See here for more info - https://github.com/timescale/timescaledb
 
 ## Usage
 ```hcl
@@ -49,7 +51,7 @@ EOL
       }
 
       config {
-        image = "ccakes/nomad-pgsql-patroni:10.5-0"
+        image = "ccakes/nomad-pgsql-patroni:11.5-2.tsdb"
 
         port_map {
           pg = 5432
