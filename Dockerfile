@@ -28,6 +28,7 @@ RUN apk update && apk add --no-cache git \
 FROM postgres:11.5-alpine
 
 RUN  set -ex \
+  && addgroup postgres root \
   && apk add --no-cache --virtual .fetch-deps \
     ca-certificates \
     curl \
@@ -53,7 +54,9 @@ RUN  set -ex \
   # Install Patroni
   && apk add --no-cache python3 \
   && pip3 install awscli python-consul \
-  && pip3 install https://github.com/ccakes/patroni/archive/master.zip \
+  && pip3 install psycopg2-binary \
+  # && pip3 install https://github.com/ccakes/patroni/archive/master.zip \
+  && pip3 install https://github.com/zalando/patroni/archive/v1.6.0.zip \
   \
   # Install WAL-G
   && curl -LO https://github.com/wal-g/wal-g/releases/download/v0.2.12/wal-g.linux-amd64.tar.gz \
