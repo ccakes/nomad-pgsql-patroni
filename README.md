@@ -23,7 +23,7 @@ resource "nomad_job" "postgres" {
 }
 
 # job.hcl
-task "your-task" {
+job "your-task" {
   type = "service"
   dataceners = ["default"]
 
