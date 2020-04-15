@@ -50,7 +50,7 @@ RUN \
     # && strip /usr/lib/postgresql/${PG_MAJOR}/lib/timescaledb-tsl-${TIMESCALEDB_VERSION}.so
 
 ############################
-# Final image with Patroni
+# Add PostGIS and Patroni
 ############################
 FROM postgres:11.7
 
@@ -87,24 +87,14 @@ RUN set -x \
     # Cleanup
     && rm -rf /var/lib/apt/lists/* \
     \
-    # Specify UID/GID
-    # && usermod -u 70 postgres \
-    # && groupmod -g 70 postgres \
+    # Add postgres to root group so it can read a private key for TLS
+    # See https://github.com/hashicorp/nomad/issues/5020
     && gpasswd -a postgres root
-    # && chown --recursive 70:70 /var/run/postgresql \
-    # && chown --recursive 70:70 /var/lib/postgresql
 
 RUN mkdir -p /docker-entrypoint-initdb.d
 COPY ./files/000_shared_libs.sh /docker-entrypoint-initdb.d/000_shared_libs.sh
 COPY ./files/001_initdb_postgis.sh /docker-entrypoint-initdb.d/001_initdb_postgis.sh
-COPY ./files/002_install_timescaledb.sh /docker-entrypoint-initdb.d/002_install_timescaledb.sh
-COPY ./files/003_timescaledb_tune.sh /docker-entrypoint-initdb.d/003_timescaledb_tune.sh
+COPY ./files/002_timescaledb_tune.sh /docker-entrypoint-initdb.d/003_timescaledb_tune.sh
 
 COPY ./files/update-postgis.sh /usr/local/bin
 COPY ./files/docker-initdb.sh /usr/local/bin
-
-EXPOSE 8008
-EXPOSE 5432
-
-USER postgres
-CMD ["patroni", "/secrets/patroni.yml"]
