@@ -1,10 +1,12 @@
+ARG GO_VERSION=1.13.11
+ARG PG_MAJOR=12
+ARG TIMESCALEDB_VERSION=1.7.1
+ARG POSTGIS_MAJOR=3
+
 ############################
 # Build tools binaries in separate image
 ############################
-ARG GO_VERSION=1.12.7
 FROM golang:${GO_VERSION} AS tools
-
-ENV TOOLS_VERSION 0.7.0
 
 RUN mkdir -p ${GOPATH}/src/github.com/timescale/ \
     && cd ${GOPATH}/src/github.com/timescale/ \
@@ -22,12 +24,13 @@ RUN mkdir -p ${GOPATH}/src/github.com/timescale/ \
     && go build -o /go/bin/timescaledb-parallel-copy
 
 ############################
-# Build TimescaleDB
+# Build TimescaleDB + is_jsonb_valid
 ############################
-ARG PG_MAJOR=11
-FROM postgres:11.7 AS build
+FROM postgres:12.3 AS build
+ARG TIMESCALEDB_VERSION
 
-ENV TIMESCALEDB_VERSION 1.6.0
+# curl -L -o is_jsonb_valid.tar.gz https://github.com/furstenheim/is_jsonb_valid/tarball/master
+# tar xf ../is_jsonb_valid.tar.gz --strip-components 1
 
 RUN \
     set -x \
@@ -46,21 +49,31 @@ RUN \
     && make install \
     && ls -l /usr/lib/postgresql/${PG_MAJOR}/lib/ \
     && strip /usr/lib/postgresql/${PG_MAJOR}/lib/timescaledb.so \
-    && strip /usr/lib/postgresql/${PG_MAJOR}/lib/timescaledb-${TIMESCALEDB_VERSION}.so
-    # && strip /usr/lib/postgresql/${PG_MAJOR}/lib/timescaledb-tsl-${TIMESCALEDB_VERSION}.so
+    && strip /usr/lib/postgresql/${PG_MAJOR}/lib/timescaledb-${TIMESCALEDB_VERSION}.so \
+    #
+    # Build is_jsonb_valid
+    && curl -L -o is_jsonb_valid.tar.gz https://github.com/furstenheim/is_jsonb_valid/tarball/master \
+    && mkdir is_jsonb_valid && cd is_jsonb_valid \
+    && tar xf ../is_jsonb_valid.tar.gz --strip-components 1 \
+    && make install
 
 ############################
 # Add PostGIS and Patroni
 ############################
-FROM postgres:11.7
-
-ENV POSTGIS_MAJOR 3
-ENV TIMESCALEDB_VERSION 1.6.0
+FROM postgres:12.3
+ARG PG_MAJOR
+ARG POSTGIS_MAJOR
+ARG TIMESCALEDB_VERSION
 
 COPY --from=tools /go/bin/* /usr/local/bin/
 COPY --from=build /usr/lib/postgresql/${PG_MAJOR}/lib/timescale*.so /usr/lib/postgresql/${PG_MAJOR}/lib/
 COPY --from=build /usr/share/postgresql/${PG_MAJOR}/extension/timescaledb.control /usr/share/postgresql/${PG_MAJOR}/extension/timescaledb.control
 COPY --from=build /usr/share/postgresql/${PG_MAJOR}/extension/timescaledb--${TIMESCALEDB_VERSION}.sql /usr/share/postgresql/${PG_MAJOR}/extension/timescaledb--${TIMESCALEDB_VERSION}.sql
+
+COPY --from=build /usr/lib/postgresql/${PG_MAJOR}/lib/bitcode /usr/lib/postgresql/${PG_MAJOR}/lib/
+COPY --from=build /usr/lib/postgresql/${PG_MAJOR}/lib/is_jsonb_valid.so /usr/lib/postgresql/${PG_MAJOR}/lib/
+COPY --from=build /usr/share/postgresql/${PG_MAJOR}/extension/is_jsonb_valid* /usr/share/postgresql/${PG_MAJOR}/extension/
+
 
 RUN set -x \
     && apt-get update -y \
@@ -70,16 +83,16 @@ RUN set -x \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts \
         postgis \
         postgresql-$PG_MAJOR-pgrouting \
-        gcc curl python3-dev libpython3-dev libyaml-dev \
+        gcc curl python3-dev libpython3-dev libyaml-dev procps \
     \
     # Install Patroni
     && apt-get install -y --no-install-recommends \
         python3 python3-pip python3-setuptools \
     && pip3 install awscli python-consul psycopg2-binary \
-    && pip3 install https://github.com/zalando/patroni/archive/v1.6.4.zip \
+    && pip3 install https://github.com/zalando/patroni/archive/v1.6.5.zip \
     \
     # Install WAL-G
-    && curl -LO https://github.com/wal-g/wal-g/releases/download/v0.2.14/wal-g.linux-amd64.tar.gz \
+    && curl -LO https://github.com/wal-g/wal-g/releases/download/v0.2.15/wal-g.linux-amd64.tar.gz \
     && tar xf wal-g.linux-amd64.tar.gz \
     && rm -f wal-g.linux-amd64.tar.gz \
     && mv wal-g /usr/local/bin/ \
@@ -94,7 +107,7 @@ RUN set -x \
 RUN mkdir -p /docker-entrypoint-initdb.d
 COPY ./files/000_shared_libs.sh /docker-entrypoint-initdb.d/000_shared_libs.sh
 COPY ./files/001_initdb_postgis.sh /docker-entrypoint-initdb.d/001_initdb_postgis.sh
-COPY ./files/002_timescaledb_tune.sh /docker-entrypoint-initdb.d/003_timescaledb_tune.sh
+COPY ./files/002_timescaledb_tune.sh /docker-entrypoint-initdb.d/002_timescaledb_tune.sh
 
 COPY ./files/update-postgis.sh /usr/local/bin
 COPY ./files/docker-initdb.sh /usr/local/bin
