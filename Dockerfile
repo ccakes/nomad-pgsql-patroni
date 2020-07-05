@@ -61,7 +61,7 @@ ARG TIMESCALEDB_VERSION
 COPY --from=tools /go/bin/* /usr/local/bin/
 COPY --from=build /usr/lib/postgresql/${PG_MAJOR}/lib/timescale*.so /usr/lib/postgresql/${PG_MAJOR}/lib/
 COPY --from=build /usr/share/postgresql/${PG_MAJOR}/extension/timescaledb.control /usr/share/postgresql/${PG_MAJOR}/extension/timescaledb.control
-COPY --from=build /usr/share/postgresql/${PG_MAJOR}/extension/timescaledb--${TIMESCALEDB_VERSION}.sql /usr/share/postgresql/${PG_MAJOR}/extension/timescaledb--${TIMESCALEDB_VERSION}.sql
+COPY --from=build /usr/share/postgresql/${PG_MAJOR}/extension/timescaledb--*.sql /usr/share/postgresql/${PG_MAJOR}/extension/
 
 RUN set -x \
     && apt-get update -y \
