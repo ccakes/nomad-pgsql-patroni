@@ -111,3 +111,6 @@ COPY ./files/002_timescaledb_tune.sh /docker-entrypoint-initdb.d/002_timescaledb
 
 COPY ./files/update-postgis.sh /usr/local/bin
 COPY ./files/docker-initdb.sh /usr/local/bin
+
+USER postgres
+CMD ["patroni", "/secrets/patroni.yml"]
