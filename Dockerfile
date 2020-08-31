@@ -24,46 +24,20 @@ RUN mkdir -p ${GOPATH}/src/github.com/timescale/ \
     && go build -o /go/bin/timescaledb-parallel-copy
 
 ############################
-# Build TimescaleDB
+# Add Timescale, PostGIS and Patroni
 ############################
-ARG PG_MAJOR=11
-FROM postgres:11.8 AS build
-ARG TIMESCALEDB_VERSION
-
-RUN \
-    set -x \
-    && buildDeps="curl build-essential ca-certificates git python gnupg libc++-dev libc++abi-dev pkg-config glib2.0 cmake libssl-dev" \
-    && apt-get update -y \
-    && apt-get install -y --no-install-recommends ${buildDeps} \
-    && apt-get install -y --no-install-recommends postgresql-server-dev-$PG_MAJOR \
-    && mkdir -p /tmp/build \
-    && curl -o /tmp/build/timescaledb-${TIMESCALEDB_VERSION}.tar.lzma -SL "https://github.com/timescale/timescaledb/releases/download/${TIMESCALEDB_VERSION}/timescaledb-${TIMESCALEDB_VERSION}.tar.lzma" \
-    && cd /tmp/build \
-    && tar xf /tmp/build/timescaledb-${TIMESCALEDB_VERSION}.tar.lzma -C /tmp/build/ \
-    && cd /tmp/build/timescaledb \
-    && ./bootstrap -DPROJECT_INSTALL_METHOD="docker" -DAPACHE_ONLY=1 -DREGRESS_CHECKS=OFF \
-    && cd build \
-    && make \
-    && make install \
-    && ls -l /usr/lib/postgresql/${PG_MAJOR}/lib/ \
-    && strip /usr/lib/postgresql/${PG_MAJOR}/lib/timescaledb.so \
-    && strip /usr/lib/postgresql/${PG_MAJOR}/lib/timescaledb-${TIMESCALEDB_VERSION}.so
-    # && strip /usr/lib/postgresql/${PG_MAJOR}/lib/timescaledb-tsl-${TIMESCALEDB_VERSION}.so
-
-############################
-# Add PostGIS and Patroni
-############################
-FROM postgres:11.8
+FROM postgres:11.9
 ARG PG_MAJOR
 ARG POSTGIS_MAJOR
 ARG TIMESCALEDB_VERSION
 
 COPY --from=tools /go/bin/* /usr/local/bin/
-COPY --from=build /usr/lib/postgresql/${PG_MAJOR}/lib/timescale*.so /usr/lib/postgresql/${PG_MAJOR}/lib/
-COPY --from=build /usr/share/postgresql/${PG_MAJOR}/extension/timescaledb.control /usr/share/postgresql/${PG_MAJOR}/extension/timescaledb.control
-COPY --from=build /usr/share/postgresql/${PG_MAJOR}/extension/timescaledb--*.sql /usr/share/postgresql/${PG_MAJOR}/extension/
 
 RUN set -x \
+    && apt-get update -y \
+    && apt-get install -y gcc curl procps python3-dev libpython3-dev libyaml-dev apt-transport-https ca-certificates \
+    && echo "deb https://packagecloud.io/timescale/timescaledb/debian/ stretch main" > /etc/apt/sources.list.d/timescaledb.list \
+    && curl -L https://packagecloud.io/timescale/timescaledb/gpgkey | apt-key add - \
     && apt-get update -y \
     && apt-cache showpkg postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
     && apt-get install -y --no-install-recommends \
@@ -71,7 +45,7 @@ RUN set -x \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts \
         postgis \
         postgresql-$PG_MAJOR-pgrouting \
-        gcc curl python3-dev libpython3-dev libyaml-dev \
+        timescaledb-postgresql-$PG_MAJOR \
     \
     # Install Patroni
     && apt-get install -y --no-install-recommends \
@@ -85,6 +59,11 @@ RUN set -x \
     && tar xf wal-g.linux-amd64.tar.gz \
     && rm -f wal-g.linux-amd64.tar.gz \
     && mv wal-g /usr/local/bin/ \
+    \
+    # Install vaultenv
+    && curl -LO https://github.com/channable/vaultenv/releases/download/v0.13.1/vaultenv-0.13.1-linux-musl \
+    && install -oroot -groot -m755 vaultenv-0.13.1-linux-musl /usr/bin/vaultenv \
+    && rm vaultenv-0.13.1-linux-musl \
     \
     # Cleanup
     && rm -rf /var/lib/apt/lists/* \
