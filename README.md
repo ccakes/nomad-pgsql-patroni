@@ -15,6 +15,10 @@ It also contains some helpers for ongoing maintenance
 - **pgRouting 3.1**
   See here for more info - https://pgrouting.org/
 
+### Still running Postgres 11?
+
+See the [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11) branch for a maintained version.
+
 ## Usage
 ```hcl
 # main.tf
