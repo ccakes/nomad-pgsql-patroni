@@ -4,6 +4,11 @@ NO_TS_TUNE=${NO_TS_TUNE:-""}
 TS_TUNE_MEMORY=${TS_TUNE_MEMORY:-""}
 TS_TUNE_NUM_CPUS=${TS_TUNE_NUM_CPUS:-""}
 
+if [ ! -x "/usr/local/bin/timescaledb-tune" ]; then
+    # timescaledb-tune isn't present, nothing we can do here
+    exit 0
+fi
+
 if [ ! -z "${NO_TS_TUNE:-}" ]; then
     # The user has explicitly requested not to run timescaledb-tune; exit this script
     exit 0
