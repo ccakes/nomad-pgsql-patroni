@@ -165,19 +165,20 @@ _main() {
 			exec gosu postgres "$BASH_SOURCE" "$@"
 		fi
 
+		declare -g DATABASE_ALREADY_EXISTS
+		# look specifically for PG_VERSION, as it is expected in the DB dir
+		if [ -s "$PGDATA/PG_VERSION" ]; then
+			DATABASE_ALREADY_EXISTS='true'
+		fi
+
 		# only run initialization on an empty data directory
 		if [ -z "$DATABASE_ALREADY_EXISTS" ]; then
 			# check dir permissions to reduce likelihood of half-initialized database
 			ls /docker-entrypoint-initdb.d/ > /dev/null
-			echo "==> A"
 			docker_init_database_dir
-			echo "==> B"
 			docker_temp_server_start "$@"
-			echo "==> C"
 			docker_process_init_files /docker-entrypoint-initdb.d/*
-			echo "==> D"
 			docker_temp_server_stop
-			echo "==> E"
 
 			echo
 			echo 'PostgreSQL init process complete; ready for start up.'
