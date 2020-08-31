@@ -9,6 +9,10 @@ if [ ! -z "${NO_TS_TUNE:-}" ]; then
     exit 0
 fi
 
+if [ ! -x "/usr/local/bin/timescaledb-tune" ]; then
+    # timescaledb-tune isn't present, nothing we can do here
+    exit 0
+fi
 
 if [ -z "${POSTGRESQL_CONF_DIR:-}" ]; then
         POSTGRESQL_CONF_DIR=${PGDATA}

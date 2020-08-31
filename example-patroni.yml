@@ -1,0 +1,67 @@
+scope: local
+name: postgres
+namespace: /
+
+restapi:
+  listen: 0.0.0.0:8008
+  connect_address: 127.0.0.1:8008
+
+consul:
+  scheme: http
+  host: consul:8500
+
+bootstrap:
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+    postgresql:
+      use_pg_rewind: true
+      use_slots: true
+      parameters:
+        timezone: 'UTC'
+        max_connections: 100
+        shared_preload_libraries: pg_stat_statements,timescaledb
+        shared_buffers: 64MB
+        work_mem: 16MB
+        effective_cache_size: 512MB
+        tcp_keepalives_idle: 300
+        timescaledb.telemetry_level: off
+
+  method: local
+  local:
+    command: /usr/local/bin/docker-initdb.sh
+    keep_existing_recovery_conf: True
+
+  initdb:
+  - encoding: UTF8
+
+  pg_hba:
+  - host  all           postgres  all md5
+  - host  replication   repl      all md5
+  - host  all           all       all md5
+
+  users:
+    postgres:
+      password: postgres
+      options:
+        - createrole
+        - createdb
+    repl:
+      password: repl
+      options:
+        - replication
+
+postgresql:
+  listen: 0.0.0.0:5432
+  connect_address: 0.0.0.0:5432
+  use_unix_socket: true
+  data_dir: /var/lib/postgresql/data
+  authentication:
+    replication:
+      username: repl
+      password: repl
+    superuser:
+      username: postgres
+      password: postgres
