@@ -6,13 +6,13 @@ It also contains some helpers for ongoing maintenance
 
 - **awscli**<br />
   So the same container image can be used in backup jobs
-- **WAL-G 0.2.12**<br />
+- **WAL-G 0.2.15**<br />
   See here for more info - https://github.com/wal-g/wal-g
-- **TimescaleDB 1.5.1**<br />
+- **TimescaleDB 1.7.3**<br />
   See here for more info - https://github.com/timescale/timescaledb
-- **PostGIS 3.0.0**
+- **PostGIS 3.0.2**
   See here for more info - https://postgis.net/
-- **pgRouting 2.0**
+- **pgRouting 3.1**
   See here for more info - https://pgrouting.org/
 
 ## Usage
@@ -55,7 +55,7 @@ EOL
       }
 
       config {
-        image = "ccakes/nomad-pgsql-patroni:11.6-3.tsdb_gis"
+        image = "ccakes/nomad-pgsql-patroni:12.4-1.tsdb_gis"
 
         port_map {
           pg = 5432
@@ -74,6 +74,13 @@ EOL
     }
   }
 }
+```
+
+## Testing
+
+An example `docker-compose` file and patroni config is included to see this running.
+```shell
+$ docker-compose -f docker-compose.test.yml up
 ```
 
 ## ISSUES

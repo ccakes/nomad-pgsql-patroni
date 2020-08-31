@@ -1,0 +1,16 @@
+version: '3'
+services:
+  # Consul
+  consul:
+    image: consul
+    ports:
+      - '8500:8500'
+
+  # patroni
+  patroni:
+    build: .
+    image: ccakes/nomad-pgsql-patroni:12.4-1.tsdb_gis
+    ports:
+      - '5432:5432'
+    volumes:
+      - './example-patroni.yml:/secrets/patroni.yml'
