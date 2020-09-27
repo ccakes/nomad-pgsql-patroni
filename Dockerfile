@@ -44,6 +44,7 @@ RUN set -x \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts \
         postgis \
+        postgresql-$PG_MAJOR-cstore-fdw \
         postgresql-$PG_MAJOR-pgrouting \
         timescaledb-postgresql-$PG_MAJOR \
     \
