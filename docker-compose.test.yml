@@ -10,7 +10,11 @@ services:
   patroni:
     build: .
     image: ccakes/nomad-pgsql-patroni:11.9-1.tsdb_gis
+    environment:
+      PGDATA: /alloc/data
     ports:
       - '5432:5432'
+    tmpfs:
+      - /alloc
     volumes:
       - './example-patroni.yml:/secrets/patroni.yml'
