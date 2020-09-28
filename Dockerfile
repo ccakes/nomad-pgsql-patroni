@@ -1,6 +1,6 @@
 ARG GO_VERSION=1.13.11
-ARG PG_MAJOR=12
-ARG TIMESCALEDB_VERSION=1.7.1
+ARG PG_MAJOR=13
+ARG TIMESCALEDB_VERSION=1.7.4
 ARG POSTGIS_MAJOR=3
 
 ############################
@@ -26,7 +26,7 @@ RUN mkdir -p ${GOPATH}/src/github.com/timescale/ \
 ############################
 # Add Timescale, PostGIS and Patroni
 ############################
-FROM postgres:12.4
+FROM postgres:13.0
 ARG PG_MAJOR
 ARG POSTGIS_MAJOR
 ARG TIMESCALEDB_VERSION
@@ -44,16 +44,14 @@ RUN set -x \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts \
         postgis \
-        postgresql-$PG_MAJOR-cstore-fdw \
         postgresql-$PG_MAJOR-pgrouting \
-        timescaledb-postgresql-$PG_MAJOR \
     \
     # Install Patroni
     && apt-get install -y --no-install-recommends \
         python3 python3-pip python3-setuptools \
     && pip3 install wheel zipp==1.0.0 \
     && pip3 install awscli python-consul psycopg2-binary \
-    && pip3 install https://github.com/zalando/patroni/archive/v1.6.5.zip \
+    && pip3 install https://github.com/zalando/patroni/archive/v2.0.0.zip \
     \
     # Install WAL-G
     && curl -LO https://github.com/wal-g/wal-g/releases/download/v0.2.15/wal-g.linux-amd64.tar.gz \
@@ -76,7 +74,7 @@ RUN set -x \
 RUN mkdir -p /docker-entrypoint-initdb.d
 COPY ./files/000_shared_libs.sh /docker-entrypoint-initdb.d/000_shared_libs.sh
 COPY ./files/001_initdb_postgis.sh /docker-entrypoint-initdb.d/001_initdb_postgis.sh
-COPY ./files/002_timescaledb_tune.sh /docker-entrypoint-initdb.d/002_timescaledb_tune.sh
+# COPY ./files/002_timescaledb_tune.sh /docker-entrypoint-initdb.d/002_timescaledb_tune.sh
 
 COPY ./files/update-postgis.sh /usr/local/bin
 COPY ./files/docker-initdb.sh /usr/local/bin

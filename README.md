@@ -8,16 +8,18 @@ It also contains some helpers for ongoing maintenance
   So the same container image can be used in backup jobs
 - **WAL-G 0.2.15**<br />
   See here for more info - https://github.com/wal-g/wal-g
-- **TimescaleDB 1.7.3**<br />
-  See here for more info - https://github.com/timescale/timescaledb
 - **PostGIS 3.0.2**
   See here for more info - https://postgis.net/
 - **pgRouting 3.1**
   See here for more info - https://pgrouting.org/
 
-### Still running Postgres 11?
+### A note about TimescaleDB and Postgres 13
 
-See the [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11) branch for a maintained version.
+The `pg-11` and `pg-12` branches both contain the TimescaleDB extension however Timescale doesn't yet support Postgres 13. Hopefully [this issue](https://github.com/timescale/timescaledb/issues/2434) will be closed when support is added (maybe in Timescale v2?) and then I'll re-add the extension here.
+
+### Still running Postgres 11 or 12?
+
+See the [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11) or [`pg-12`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-12) branch for a maintained version.
 
 ## Usage
 ```hcl
@@ -59,7 +61,7 @@ EOL
       }
 
       config {
-        image = "ccakes/nomad-pgsql-patroni:12.4-1.tsdb_gis"
+        image = "ccakes/nomad-pgsql-patroni:13.0-1.gis"
 
         port_map {
           pg = 5432

@@ -22,7 +22,7 @@ bootstrap:
       parameters:
         timezone: 'UTC'
         max_connections: 100
-        shared_preload_libraries: pg_stat_statements,timescaledb
+        shared_preload_libraries: pg_stat_statements
         shared_buffers: 64MB
         work_mem: 16MB
         effective_cache_size: 512MB
