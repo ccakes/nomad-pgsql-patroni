@@ -17,6 +17,8 @@ It also contains some helpers for ongoing maintenance
 
 The `pg-11` and `pg-12` branches both contain the TimescaleDB extension however Timescale doesn't yet support Postgres 13. Hopefully [this issue](https://github.com/timescale/timescaledb/issues/2434) will be closed when support is added (maybe in Timescale v2?) and then I'll re-add the extension here.
 
+Accordingly, the Docker tag for this release without Timescale is `13.0-1.gis` (ie no `tsdb`)
+
 ### Still running Postgres 11 or 12?
 
 See the [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11) or [`pg-12`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-12) branch for a maintained version.
