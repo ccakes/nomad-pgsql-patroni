@@ -6,8 +6,12 @@ It also contains some helpers for ongoing maintenance
 
 - **awscli**<br />
   So the same container image can be used in backup jobs
-- **WAL-G 0.2.15**<br />
+- **Patroni 2.0.2**<br />
+  See here for more info - https://github.com/zalando/patroni
+- **WAL-G 0.2.19**<br />
   See here for more info - https://github.com/wal-g/wal-g
+- **TimescaleDB 2.1.0**
+  See here for more info - https://github.com/timescale/timescaledb
 - **PostGIS 3.0.2**
   See here for more info - https://postgis.net/
 - **pgRouting 3.1**
@@ -15,9 +19,9 @@ It also contains some helpers for ongoing maintenance
 
 ### A note about TimescaleDB and Postgres 13
 
-The `pg-11` and `pg-12` branches both contain the TimescaleDB extension however Timescale doesn't yet support Postgres 13. Hopefully [this issue](https://github.com/timescale/timescaledb/issues/2434) will be closed when support is added (maybe in Timescale v2?) and then I'll re-add the extension here.
+Timescale didn't initially support Postgre 13 so the 13.0 and 13.1 builds didn't provide it. Timescale 2.1.0 adds Postgres 13 support so from 13.2 this image includes Timescale again!
 
-Accordingly, the Docker tag for this release without Timescale is `13.0-1.gis` (ie no `tsdb`)
+Grab the `13.2-1.gis` tag if you don't want or need Timescale, or `13.2-1.tsdb_gis` if you do!
 
 ### Still running Postgres 11 or 12?
 

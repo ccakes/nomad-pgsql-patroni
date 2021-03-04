@@ -1,6 +1,6 @@
 ARG GO_VERSION=1.13.11
 ARG PG_MAJOR=13
-ARG TIMESCALEDB_VERSION=1.7.4
+ARG TIMESCALEDB_MAJOR=2
 ARG POSTGIS_MAJOR=3
 
 ############################
@@ -26,10 +26,10 @@ RUN mkdir -p ${GOPATH}/src/github.com/timescale/ \
 ############################
 # Add Timescale, PostGIS and Patroni
 ############################
-FROM postgres:13.0
+FROM postgres:13.2
 ARG PG_MAJOR
 ARG POSTGIS_MAJOR
-ARG TIMESCALEDB_VERSION
+ARG TIMESCALEDB_MAJOR
 
 COPY --from=tools /go/bin/* /usr/local/bin/
 
@@ -43,18 +43,20 @@ RUN set -x \
     && apt-get install -y --no-install-recommends \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts \
+        timescaledb-$TIMESCALEDB_MAJOR-postgresql-$PG_MAJOR \
         postgis \
         postgresql-$PG_MAJOR-pgrouting \
     \
     # Install Patroni
     && apt-get install -y --no-install-recommends \
         python3 python3-pip python3-setuptools \
+    && pip3 install --upgrade pip \
     && pip3 install wheel zipp==1.0.0 \
     && pip3 install awscli python-consul psycopg2-binary \
-    && pip3 install https://github.com/zalando/patroni/archive/v2.0.0.zip \
+    && pip3 install https://github.com/zalando/patroni/archive/v2.0.2.zip \
     \
     # Install WAL-G
-    && curl -LO https://github.com/wal-g/wal-g/releases/download/v0.2.15/wal-g.linux-amd64.tar.gz \
+    && curl -LO https://github.com/wal-g/wal-g/releases/download/v0.2.19/wal-g.linux-amd64.tar.gz \
     && tar xf wal-g.linux-amd64.tar.gz \
     && rm -f wal-g.linux-amd64.tar.gz \
     && mv wal-g /usr/local/bin/ \
