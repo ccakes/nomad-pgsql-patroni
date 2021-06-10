@@ -1,4 +1,4 @@
-ARG GO_VERSION=1.13.11
+ARG GO_VERSION=1.16.3
 ARG PG_MAJOR=13
 ARG TIMESCALEDB_MAJOR=2
 ARG POSTGIS_MAJOR=3
@@ -24,14 +24,42 @@ RUN mkdir -p ${GOPATH}/src/github.com/timescale/ \
     && go build -o /go/bin/timescaledb-parallel-copy
 
 ############################
+# Build Postgres extensions
+############################
+FROM postgres:13.3 AS ext_build
+ARG PG_MAJOR
+
+RUN set -x \
+    && apt-get update -y \
+    && apt-get install -y git curl apt-transport-https ca-certificates build-essential libpq-dev postgresql-server-dev-13 \
+    && mkdir /build \
+    && cd /build \
+    \
+    # Build pgvector
+    && git clone --branch v0.1.6 https://github.com/ankane/pgvector.git \
+    && cd pgvector \
+    && make \
+    && make install \
+    && cd .. \
+    \
+    # Build postgres-json-schema
+    && git clone https://github.com/gavinwahl/postgres-json-schema \
+    && cd postgres-json-schema \
+    && make \
+    && make install
+
+############################
 # Add Timescale, PostGIS and Patroni
 ############################
-FROM postgres:13.2
+FROM postgres:13.3
 ARG PG_MAJOR
 ARG POSTGIS_MAJOR
 ARG TIMESCALEDB_MAJOR
 
+# Add Timescale tools and build extensions
 COPY --from=tools /go/bin/* /usr/local/bin/
+COPY --from=ext_build /usr/share/postgresql/13/ /usr/share/postgresql/13/
+COPY --from=ext_build /usr/lib/postgresql/13/ /usr/lib/postgresql/13/
 
 RUN set -x \
     && apt-get update -y \
@@ -56,10 +84,9 @@ RUN set -x \
     && pip3 install https://github.com/zalando/patroni/archive/v2.0.2.zip \
     \
     # Install WAL-G
-    && curl -LO https://github.com/wal-g/wal-g/releases/download/v0.2.19/wal-g.linux-amd64.tar.gz \
-    && tar xf wal-g.linux-amd64.tar.gz \
-    && rm -f wal-g.linux-amd64.tar.gz \
-    && mv wal-g /usr/local/bin/ \
+    && curl -LO https://github.com/wal-g/wal-g/releases/download/v1.0/wal-g-pg-ubuntu-18.04-amd64 \
+    && install -oroot -groot -m755 wal-g-pg-ubuntu-18.04-amd64 /usr/local/bin/wal-g \
+    && rm wal-g-pg-ubuntu-18.04-amd64 \
     \
     # Install vaultenv
     && curl -LO https://github.com/channable/vaultenv/releases/download/v0.13.1/vaultenv-0.13.1-linux-musl \
