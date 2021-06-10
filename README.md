@@ -32,6 +32,7 @@ Timescale didn't initially support Postgre 13 so the 13.0 and 13.1 builds didn't
 See the [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11) or [`pg-12`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-12) branch for a maintained version.
 
 ## Usage
+
 ```hcl
 # main.tf
 resource "nomad_job" "postgres" {
@@ -71,7 +72,7 @@ EOL
       }
 
       config {
-        image = "ccakes/nomad-pgsql-patroni:13.0-1.gis"
+        image = "ccakes/nomad-pgsql-patroni:13.3-1.tsdb_gis"
 
         port_map {
           pg = 5432
