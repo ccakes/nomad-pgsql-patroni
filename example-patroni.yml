@@ -57,7 +57,7 @@ postgresql:
   listen: 0.0.0.0:5432
   connect_address: 0.0.0.0:5432
   use_unix_socket: true
-  data_dir: /var/lib/postgresql/data
+  data_dir: /alloc/data
   authentication:
     replication:
       username: repl

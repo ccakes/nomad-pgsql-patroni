@@ -111,7 +111,7 @@ docker_process_init_files() {
 #    ie: docker_process_sql <my-file.sql
 docker_process_sql() {
 	local query_runner=( psql -v ON_ERROR_STOP=1 --username "postgres" --no-password )
-
+	
 	"${query_runner[@]}" "$@"
 }
 
@@ -175,7 +175,6 @@ _main() {
 		if [ -z "$DATABASE_ALREADY_EXISTS" ]; then
 			# check dir permissions to reduce likelihood of half-initialized database
 			ls /docker-entrypoint-initdb.d/ > /dev/null
-
 			docker_init_database_dir
 			docker_temp_server_start "$@"
 			docker_process_init_files /docker-entrypoint-initdb.d/*

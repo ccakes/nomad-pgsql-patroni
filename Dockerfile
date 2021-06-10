@@ -1,6 +1,6 @@
-ARG GO_VERSION=1.13.11
+ARG GO_VERSION=1.16.1
 ARG PG_MAJOR=11
-ARG TIMESCALEDB_VERSION=1.7.1
+ARG TIMESCALEDB_MAJOR=2
 ARG POSTGIS_MAJOR=3
 
 ############################
@@ -24,14 +24,42 @@ RUN mkdir -p ${GOPATH}/src/github.com/timescale/ \
     && go build -o /go/bin/timescaledb-parallel-copy
 
 ############################
+# Build Postgres extensions
+############################
+FROM postgres:11.12 AS ext_build
+ARG PG_MAJOR
+
+RUN set -x \
+    && apt-get update -y \
+    && apt-get install -y git curl apt-transport-https ca-certificates build-essential libpq-dev postgresql-server-dev-${PG_MAJOR} \
+    && mkdir /build \
+    && cd /build \
+    \
+    # Build pgvector
+    && git clone --branch v0.1.6 https://github.com/ankane/pgvector.git \
+    && cd pgvector \
+    && make \
+    && make install \
+    && cd .. \
+    \
+    # Build postgres-json-schema
+    && git clone https://github.com/gavinwahl/postgres-json-schema \
+    && cd postgres-json-schema \
+    && make \
+    && make install
+
+############################
 # Add Timescale, PostGIS and Patroni
 ############################
-FROM postgres:11.9
+FROM postgres:11.12
 ARG PG_MAJOR
 ARG POSTGIS_MAJOR
-ARG TIMESCALEDB_VERSION
+ARG TIMESCALEDB_MAJOR
 
+# Add Timescale tools and build extensions
 COPY --from=tools /go/bin/* /usr/local/bin/
+COPY --from=ext_build /usr/share/postgresql/11/ /usr/share/postgresql/11/
+COPY --from=ext_build /usr/lib/postgresql/11/ /usr/lib/postgresql/11/
 
 RUN set -x \
     && apt-get update -y \
@@ -43,23 +71,23 @@ RUN set -x \
     && apt-get install -y --no-install-recommends \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts \
+        timescaledb-$TIMESCALEDB_MAJOR-postgresql-$PG_MAJOR \
         postgis \
-        postgresql-$PG_MAJOR-cstore-fdw \
         postgresql-$PG_MAJOR-pgrouting \
-        timescaledb-postgresql-$PG_MAJOR \
     \
     # Install Patroni
     && apt-get install -y --no-install-recommends \
         python3 python3-pip python3-setuptools \
+    && pip3 install --upgrade pip \
+    && pip3 install wheel flake8 \
     && pip3 install wheel zipp==1.0.0 \
     && pip3 install awscli python-consul psycopg2-binary \
-    && pip3 install https://github.com/zalando/patroni/archive/v1.6.5.zip \
+    && pip3 install https://github.com/zalando/patroni/archive/v2.0.2.zip \
     \
     # Install WAL-G
-    && curl -LO https://github.com/wal-g/wal-g/releases/download/v0.2.15/wal-g.linux-amd64.tar.gz \
-    && tar xf wal-g.linux-amd64.tar.gz \
-    && rm -f wal-g.linux-amd64.tar.gz \
-    && mv wal-g /usr/local/bin/ \
+    && curl -LO https://github.com/wal-g/wal-g/releases/download/v1.0/wal-g-pg-ubuntu-18.04-amd64 \
+    && install -oroot -groot -m755 wal-g-pg-ubuntu-18.04-amd64 /usr/local/bin/wal-g \
+    && rm wal-g-pg-ubuntu-18.04-amd64 \
     \
     # Install vaultenv
     && curl -LO https://github.com/channable/vaultenv/releases/download/v0.13.1/vaultenv-0.13.1-linux-musl \
