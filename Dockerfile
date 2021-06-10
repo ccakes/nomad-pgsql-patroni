@@ -31,7 +31,7 @@ ARG PG_MAJOR
 
 RUN set -x \
     && apt-get update -y \
-    && apt-get install -y git curl apt-transport-https ca-certificates build-essential libpq-dev postgresql-server-dev-12 \
+    && apt-get install -y git curl apt-transport-https ca-certificates build-essential libpq-dev postgresql-server-dev-${PG_MAJOR} \
     && mkdir /build \
     && cd /build \
     \
