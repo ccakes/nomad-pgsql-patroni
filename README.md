@@ -2,22 +2,30 @@
 
 A simple container running Postgres and Patroni useful for dropping directly into a Hashicorp environment (Nomad + Consul + Vault)
 
-It also contains some helpers for ongoing maintenance
+It also comes pre-baked with some tools and extensions
 
-- **awscli**<br />
-  So the same container image can be used in backup jobs
-- **WAL-G 0.2.15**<br />
-  See here for more info - https://github.com/wal-g/wal-g
-- **TimescaleDB 1.7.3**<br />
-  See here for more info - https://github.com/timescale/timescaledb
-- **PostGIS 3.0.2**
-  See here for more info - https://postgis.net/
-- **pgRouting 3.1**
-  See here for more info - https://pgrouting.org/
+### Tools
+
+| Name | Version | Link |
+|--|--|--|
+| awscli | 1.19.91 | https://pypi.org/project/awscli/ |
+| WAL-G | 1.0 | https://github.com/wal-g/wal-g |
+| Patroni | 2.0.2 | https://github.com/zalando/patroni |
+| vaultenv | 0.13.1 | https://github.com/channable/vaultenv |
+
+### Extensions
+
+| Name | Version | Link |
+|--|--|--|
+| Timescale | 2.3.0 | https://www.timescale.com |
+| PostGIS | 3.1.2 | https://postgis.net |
+| pgRouting | 3.1.3 | https://pgrouting.org |
+| postgres-json-schema | 0.1.1 | https://github.com/gavinwahl/postgres-json-schema |
+| vector | 0.1.6 | https://github.com/ankane/pgvector |
 
 ### Still running Postgres 11?
 
-See the [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11) branch for a maintained version.
+See the [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11) branch for a maintained version. Also see [`master](https://github.com/ccakes/nomad-pgsql-patroni) for shiny new Postgres v13! :sparkles:
 
 ## Usage
 ```hcl
