@@ -34,26 +34,23 @@ See the [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11) or [
 ## Usage
 
 ```hcl
-# main.tf
-resource "nomad_job" "postgres" {
-  jobspec = "${file("${path.module}/job.hcl")}"
-}
-
-# job.hcl
-job "your-task" {
+job "postgres-13" {
   type = "service"
-  dataceners = ["default"]
+  datacenters = ["dc1"]
 
-  vault { policies = ["postgres"] }
+  group "group" {
+    count = 1
 
-  group "your-group" {
-    count = 3
+    network {
+      port api { to = 8080 }
+      port pg { to = 5432 }
+    }
 
     task "db" {
       driver = "docker"
 
       template {
-        data <<EOL
+        data = <<EOL
 scope: postgres
 name: pg-{{env "node.unique.name"}}
 namespace: /nomad
@@ -63,34 +60,28 @@ restapi:
   connect_address: {{env "NOMAD_ADDR_api"}}
 
 consul:
-host: consul.example.com
-token: {{with secret "consul/creds/postgres"}}{{.Data.token}}{{end}}
+host: localhost
 register_service: true
 
 # bootstrap config
 EOL
+
+        destination = "/secrets/patroni.yml"
       }
 
       config {
         image = "ccakes/nomad-pgsql-patroni:13.3-1.tsdb_gis"
 
-        port_map {
-          pg = 5432
-          api = 8008
-        }
+        ports = ["api", "pg"]
       }
 
       resources {
         memory = 1024
-
-        network {
-          port "api" {}
-          port "pg" {}
-        }
       }
     }
   }
 }
+
 ```
 
 ## Testing
