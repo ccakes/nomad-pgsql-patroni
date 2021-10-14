@@ -26,7 +26,7 @@ RUN mkdir -p ${GOPATH}/src/github.com/timescale/ \
 ############################
 # Build Postgres extensions
 ############################
-FROM postgres:13.3 AS ext_build
+FROM postgres:13.4 AS ext_build
 ARG PG_MAJOR
 
 RUN set -x \
@@ -51,7 +51,7 @@ RUN set -x \
 ############################
 # Add Timescale, PostGIS and Patroni
 ############################
-FROM postgres:13.3
+FROM postgres:13.4
 ARG PG_MAJOR
 ARG POSTGIS_MAJOR
 ARG TIMESCALEDB_MAJOR
@@ -81,17 +81,17 @@ RUN set -x \
     && pip3 install --upgrade pip \
     && pip3 install wheel zipp==1.0.0 \
     && pip3 install awscli python-consul psycopg2-binary \
-    && pip3 install https://github.com/zalando/patroni/archive/v2.0.2.zip \
+    && pip3 install https://github.com/zalando/patroni/archive/v2.1.1.zip \
     \
     # Install WAL-G
-    && curl -LO https://github.com/wal-g/wal-g/releases/download/v1.0/wal-g-pg-ubuntu-18.04-amd64 \
+    && curl -LO https://github.com/wal-g/wal-g/releases/download/v1.1/wal-g-pg-ubuntu-18.04-amd64 \
     && install -oroot -groot -m755 wal-g-pg-ubuntu-18.04-amd64 /usr/local/bin/wal-g \
     && rm wal-g-pg-ubuntu-18.04-amd64 \
     \
     # Install vaultenv
-    && curl -LO https://github.com/channable/vaultenv/releases/download/v0.13.1/vaultenv-0.13.1-linux-musl \
-    && install -oroot -groot -m755 vaultenv-0.13.1-linux-musl /usr/bin/vaultenv \
-    && rm vaultenv-0.13.1-linux-musl \
+    && curl -LO https://github.com/channable/vaultenv/releases/download/v0.13.3/vaultenv-0.13.3-linux-musl \
+    && install -oroot -groot -m755 vaultenv-0.13.3-linux-musl /usr/bin/vaultenv \
+    && rm vaultenv-0.13.3-linux-musl \
     \
     # Cleanup
     && rm -rf /var/lib/apt/lists/* \
