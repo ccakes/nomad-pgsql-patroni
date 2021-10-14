@@ -1,32 +1,12 @@
-ARG GO_VERSION=1.16.3
-ARG PG_MAJOR=13
+ARG GO_VERSION=1.17.0
+ARG PG_MAJOR=14
 ARG TIMESCALEDB_MAJOR=2
 ARG POSTGIS_MAJOR=3
 
 ############################
-# Build tools binaries in separate image
-############################
-FROM golang:${GO_VERSION} AS tools
-
-RUN mkdir -p ${GOPATH}/src/github.com/timescale/ \
-    && cd ${GOPATH}/src/github.com/timescale/ \
-    && git clone https://github.com/timescale/timescaledb-tune.git \
-    && git clone https://github.com/timescale/timescaledb-parallel-copy.git \
-    # Build timescaledb-tune
-    && cd timescaledb-tune/cmd/timescaledb-tune \
-    && git fetch && git checkout --quiet $(git describe --abbrev=0) \
-    && go get -d -v \
-    && go build -o /go/bin/timescaledb-tune \
-    # Build timescaledb-parallel-copy
-    && cd ${GOPATH}/src/github.com/timescale/timescaledb-parallel-copy/cmd/timescaledb-parallel-copy \
-    && git fetch && git checkout --quiet $(git describe --abbrev=0) \
-    && go get -d -v \
-    && go build -o /go/bin/timescaledb-parallel-copy
-
-############################
 # Build Postgres extensions
 ############################
-FROM postgres:13.4 AS ext_build
+FROM postgres:14.0 AS ext_build
 ARG PG_MAJOR
 
 RUN set -x \
@@ -51,27 +31,22 @@ RUN set -x \
 ############################
 # Add Timescale, PostGIS and Patroni
 ############################
-FROM postgres:13.4
+FROM postgres:14.0
 ARG PG_MAJOR
 ARG POSTGIS_MAJOR
-ARG TIMESCALEDB_MAJOR
 
-# Add Timescale tools and build extensions
-COPY --from=tools /go/bin/* /usr/local/bin/
-COPY --from=ext_build /usr/share/postgresql/13/ /usr/share/postgresql/13/
-COPY --from=ext_build /usr/lib/postgresql/13/ /usr/lib/postgresql/13/
+# Add extensions
+COPY --from=ext_build /usr/share/postgresql/14/ /usr/share/postgresql/14/
+COPY --from=ext_build /usr/lib/postgresql/14/ /usr/lib/postgresql/14/
 
 RUN set -x \
     && apt-get update -y \
     && apt-get install -y gcc curl procps python3-dev libpython3-dev libyaml-dev apt-transport-https ca-certificates \
-    && echo "deb https://packagecloud.io/timescale/timescaledb/debian/ stretch main" > /etc/apt/sources.list.d/timescaledb.list \
-    && curl -L https://packagecloud.io/timescale/timescaledb/gpgkey | apt-key add - \
     && apt-get update -y \
     && apt-cache showpkg postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
     && apt-get install -y --no-install-recommends \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts \
-        timescaledb-$TIMESCALEDB_MAJOR-postgresql-$PG_MAJOR \
         postgis \
         postgresql-$PG_MAJOR-pgrouting \
     \
@@ -84,9 +59,9 @@ RUN set -x \
     && pip3 install https://github.com/zalando/patroni/archive/v2.1.1.zip \
     \
     # Install WAL-G
-    && curl -LO https://github.com/wal-g/wal-g/releases/download/v1.1/wal-g-pg-ubuntu-18.04-amd64 \
-    && install -oroot -groot -m755 wal-g-pg-ubuntu-18.04-amd64 /usr/local/bin/wal-g \
-    && rm wal-g-pg-ubuntu-18.04-amd64 \
+    && curl -LO https://github.com/wal-g/wal-g/releases/download/v1.1/wal-g-pg-ubuntu-20.04-amd64 \
+    && install -oroot -groot -m755 wal-g-pg-ubuntu-20.04-amd64 /usr/local/bin/wal-g \
+    && rm wal-g-pg-ubuntu-20.04-amd64 \
     \
     # Install vaultenv
     && curl -LO https://github.com/channable/vaultenv/releases/download/v0.13.3/vaultenv-0.13.3-linux-musl \

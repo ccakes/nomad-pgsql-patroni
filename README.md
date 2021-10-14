@@ -9,9 +9,9 @@ It also comes pre-baked with some tools and extensions
 | Name | Version | Link |
 |--|--|--|
 | awscli | 1.19.91 | https://pypi.org/project/awscli/ |
-| WAL-G | 1.0 | https://github.com/wal-g/wal-g |
-| Patroni | 2.0.2 | https://github.com/zalando/patroni |
-| vaultenv | 0.13.1 | https://github.com/channable/vaultenv |
+| WAL-G | 1.1 | https://github.com/wal-g/wal-g |
+| Patroni | 2.1.1 | https://github.com/zalando/patroni |
+| vaultenv | 0.13.3 | https://github.com/channable/vaultenv |
 
 ### Extensions
 
@@ -23,18 +23,24 @@ It also comes pre-baked with some tools and extensions
 | postgres-json-schema | 0.1.1 | https://github.com/gavinwahl/postgres-json-schema |
 | vector | 0.1.6 | https://github.com/ankane/pgvector |
 
-### A note about TimescaleDB and Postgres 13
+### A note about TimescaleDB and Postgres 14
 
-Timescale didn't initially support Postgre 13 so the 13.0 and 13.1 builds didn't provide it. Timescale 2.1.0 adds Postgres 13 support so from 13.2 this image includes Timescale again!
+Timescale doesn't yet support Postgres 14 so it's missing from the these builds. If you need Timescale, stick to the [`pg-13`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-13) branch for now.
 
-### Still running Postgres 11 or 12?
+Support is tracked in https://github.com/timescale/timescaledb/issues/3034
 
-See the [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11) or [`pg-12`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-12) branch for a maintained version.
+### Still running an older Postgres version?
+
+These branches are *mostly* supported containing older versions. If I get behind on a point release feel free to raise an issue :thumbsup:
+
+- [`pg-13`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-13)
+- [`pg-12`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-12)
+- [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11)
 
 ## Usage
 
 ```hcl
-job "postgres-13" {
+job "postgres-14" {
   type = "service"
   datacenters = ["dc1"]
 
@@ -70,7 +76,7 @@ EOL
       }
 
       config {
-        image = "ccakes/nomad-pgsql-patroni:13.4-1.tsdb_gis"
+        image = "ccakes/nomad-pgsql-patroni:14.0-1.gis"
 
         ports = ["api", "pg"]
       }
