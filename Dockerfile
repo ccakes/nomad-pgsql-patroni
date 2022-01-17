@@ -1,4 +1,4 @@
-ARG GO_VERSION=1.16.3
+ARG GO_VERSION=1.17
 ARG PG_MAJOR=13
 ARG TIMESCALEDB_MAJOR=2
 ARG POSTGIS_MAJOR=3
@@ -26,7 +26,7 @@ RUN mkdir -p ${GOPATH}/src/github.com/timescale/ \
 ############################
 # Build Postgres extensions
 ############################
-FROM postgres:13.4 AS ext_build
+FROM postgres:13.5 AS ext_build
 ARG PG_MAJOR
 
 RUN set -x \
@@ -36,7 +36,7 @@ RUN set -x \
     && cd /build \
     \
     # Build pgvector
-    && git clone --branch v0.1.6 https://github.com/ankane/pgvector.git \
+    && git clone --branch v0.2.2 https://github.com/ankane/pgvector.git \
     && cd pgvector \
     && make \
     && make install \
@@ -51,7 +51,7 @@ RUN set -x \
 ############################
 # Add Timescale, PostGIS and Patroni
 ############################
-FROM postgres:13.4
+FROM postgres:13.5
 ARG PG_MAJOR
 ARG POSTGIS_MAJOR
 ARG TIMESCALEDB_MAJOR
@@ -81,7 +81,7 @@ RUN set -x \
     && pip3 install --upgrade pip \
     && pip3 install wheel zipp==1.0.0 \
     && pip3 install awscli python-consul psycopg2-binary \
-    && pip3 install https://github.com/zalando/patroni/archive/v2.1.1.zip \
+    && pip3 install https://github.com/zalando/patroni/archive/v2.1.2.zip \
     \
     # Install WAL-G
     && curl -LO https://github.com/wal-g/wal-g/releases/download/v1.1/wal-g-pg-ubuntu-18.04-amd64 \
@@ -89,9 +89,9 @@ RUN set -x \
     && rm wal-g-pg-ubuntu-18.04-amd64 \
     \
     # Install vaultenv
-    && curl -LO https://github.com/channable/vaultenv/releases/download/v0.13.3/vaultenv-0.13.3-linux-musl \
-    && install -oroot -groot -m755 vaultenv-0.13.3-linux-musl /usr/bin/vaultenv \
-    && rm vaultenv-0.13.3-linux-musl \
+    && curl -LO https://github.com/channable/vaultenv/releases/download/v0.14.0/vaultenv-0.14.0-linux-musl \
+    && install -oroot -groot -m755 vaultenv-0.14.0-linux-musl /usr/bin/vaultenv \
+    && rm vaultenv-0.14.0-linux-musl \
     \
     # Cleanup
     && rm -rf /var/lib/apt/lists/* \

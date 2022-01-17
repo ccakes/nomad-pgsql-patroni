@@ -8,28 +8,28 @@ It also comes pre-baked with some tools and extensions
 
 | Name | Version | Link |
 |--|--|--|
-| awscli | 1.19.91 | https://pypi.org/project/awscli/ |
-| WAL-G | 1.0 | https://github.com/wal-g/wal-g |
-| Patroni | 2.0.2 | https://github.com/zalando/patroni |
-| vaultenv | 0.13.1 | https://github.com/channable/vaultenv |
+| awscli | 1.22.37 | https://pypi.org/project/awscli/ |
+| WAL-G | 1.1 | https://github.com/wal-g/wal-g |
+| Patroni | 2.1.2 | https://github.com/zalando/patroni |
+| vaultenv | 0.14.0 | https://github.com/channable/vaultenv |
 
 ### Extensions
 
 | Name | Version | Link |
 |--|--|--|
-| Timescale | 2.4.2 | https://www.timescale.com |
-| PostGIS | 3.1.4 | https://postgis.net |
+| Timescale | 2.5.1 | https://www.timescale.com |
+| PostGIS | 3.2.0 | https://postgis.net |
 | pgRouting | 3.2.1 | https://pgrouting.org |
 | postgres-json-schema | 0.1.1 | https://github.com/gavinwahl/postgres-json-schema |
-| vector | 0.1.6 | https://github.com/ankane/pgvector |
+| vector | 0.2.2 | https://github.com/ankane/pgvector |
 
 ### A note about TimescaleDB and Postgres 13
 
 Timescale didn't initially support Postgre 13 so the 13.0 and 13.1 builds didn't provide it. Timescale 2.1.0 adds Postgres 13 support so from 13.2 this image includes Timescale again!
 
-### Still running Postgres 11 or 12?
+### Running another version of Postgres?
 
-See the [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11) or [`pg-12`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-12) branch for a maintained version.
+See the [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11) or [`pg-12`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-12) branch for older versions. Otherwise, jump to [`master`](https://github.com/ccakes/nomad-pgsql-patroni) for the latest and greatest!
 
 ## Usage
 
@@ -70,7 +70,7 @@ EOL
       }
 
       config {
-        image = "ccakes/nomad-pgsql-patroni:13.4-1.tsdb_gis"
+        image = "ccakes/nomad-pgsql-patroni:13.5-1.tsdb_gis"
 
         ports = ["api", "pg"]
       }
