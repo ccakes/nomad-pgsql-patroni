@@ -10,8 +10,8 @@ It also comes pre-baked with some tools and extensions
 |--|--|--|
 | awscli | 1.19.91 | https://pypi.org/project/awscli/ |
 | WAL-G | 1.1 | https://github.com/wal-g/wal-g |
-| Patroni | 2.1.1 | https://github.com/zalando/patroni |
-| vaultenv | 0.13.3 | https://github.com/channable/vaultenv |
+| Patroni | 2.1.2 | https://github.com/zalando/patroni |
+| vaultenv | 0.14.0 | https://github.com/channable/vaultenv |
 
 ### Extensions
 
@@ -21,7 +21,7 @@ It also comes pre-baked with some tools and extensions
 | PostGIS | 3.1.4 | https://postgis.net |
 | pgRouting | 3.2.1 | https://pgrouting.org |
 | postgres-json-schema | 0.1.1 | https://github.com/gavinwahl/postgres-json-schema |
-| vector | 0.1.6 | https://github.com/ankane/pgvector |
+| vector | 0.2.2 | https://github.com/ankane/pgvector |
 
 ### A note about TimescaleDB and Postgres 14
 

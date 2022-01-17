@@ -1,12 +1,32 @@
-ARG GO_VERSION=1.17.0
+ARG GO_VERSION=1.17
 ARG PG_MAJOR=14
 ARG TIMESCALEDB_MAJOR=2
 ARG POSTGIS_MAJOR=3
 
 ############################
+# Build tools binaries in separate image
+############################
+FROM golang:${GO_VERSION} AS tools
+
+RUN mkdir -p ${GOPATH}/src/github.com/timescale/ \
+    && cd ${GOPATH}/src/github.com/timescale/ \
+    && git clone https://github.com/timescale/timescaledb-tune.git \
+    && git clone https://github.com/timescale/timescaledb-parallel-copy.git \
+    # Build timescaledb-tune
+    && cd timescaledb-tune/cmd/timescaledb-tune \
+    && git fetch && git checkout --quiet $(git describe --abbrev=0) \
+    && go get -d -v \
+    && go build -o /go/bin/timescaledb-tune \
+    # Build timescaledb-parallel-copy
+    && cd ${GOPATH}/src/github.com/timescale/timescaledb-parallel-copy/cmd/timescaledb-parallel-copy \
+    && git fetch && git checkout --quiet $(git describe --abbrev=0) \
+    && go get -d -v \
+    && go build -o /go/bin/timescaledb-parallel-copy
+
+############################
 # Build Postgres extensions
 ############################
-FROM postgres:14.0 AS ext_build
+FROM postgres:14.1 AS ext_build
 ARG PG_MAJOR
 
 RUN set -x \
@@ -16,7 +36,7 @@ RUN set -x \
     && cd /build \
     \
     # Build pgvector
-    && git clone --branch v0.1.6 https://github.com/ankane/pgvector.git \
+    && git clone --branch v0.2.2 https://github.com/ankane/pgvector.git \
     && cd pgvector \
     && make \
     && make install \
@@ -31,22 +51,27 @@ RUN set -x \
 ############################
 # Add Timescale, PostGIS and Patroni
 ############################
-FROM postgres:14.0
+FROM postgres:14.1
 ARG PG_MAJOR
 ARG POSTGIS_MAJOR
+ARG TIMESCALEDB_MAJOR
 
 # Add extensions
+COPY --from=tools /go/bin/* /usr/local/bin/
 COPY --from=ext_build /usr/share/postgresql/14/ /usr/share/postgresql/14/
 COPY --from=ext_build /usr/lib/postgresql/14/ /usr/lib/postgresql/14/
 
 RUN set -x \
     && apt-get update -y \
     && apt-get install -y gcc curl procps python3-dev libpython3-dev libyaml-dev apt-transport-https ca-certificates \
+    && echo "deb https://packagecloud.io/timescale/timescaledb/debian/ stretch main" > /etc/apt/sources.list.d/timescaledb.list \
+    && curl -L https://packagecloud.io/timescale/timescaledb/gpgkey | apt-key add - \
     && apt-get update -y \
     && apt-cache showpkg postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
     && apt-get install -y --no-install-recommends \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts \
+        timescaledb-$TIMESCALEDB_MAJOR-postgresql-$PG_MAJOR \
         postgis \
         postgresql-$PG_MAJOR-pgrouting \
     \
@@ -56,7 +81,7 @@ RUN set -x \
     && pip3 install --upgrade pip \
     && pip3 install wheel zipp==1.0.0 \
     && pip3 install awscli python-consul psycopg2-binary \
-    && pip3 install https://github.com/zalando/patroni/archive/v2.1.1.zip \
+    && pip3 install https://github.com/zalando/patroni/archive/v2.1.2.zip \
     \
     # Install WAL-G
     && curl -LO https://github.com/wal-g/wal-g/releases/download/v1.1/wal-g-pg-ubuntu-20.04-amd64 \
@@ -64,9 +89,9 @@ RUN set -x \
     && rm wal-g-pg-ubuntu-20.04-amd64 \
     \
     # Install vaultenv
-    && curl -LO https://github.com/channable/vaultenv/releases/download/v0.13.3/vaultenv-0.13.3-linux-musl \
-    && install -oroot -groot -m755 vaultenv-0.13.3-linux-musl /usr/bin/vaultenv \
-    && rm vaultenv-0.13.3-linux-musl \
+    && curl -LO https://github.com/channable/vaultenv/releases/download/v0.14.0/vaultenv-0.14.0-linux-musl \
+    && install -oroot -groot -m755 vaultenv-0.14.0-linux-musl /usr/bin/vaultenv \
+    && rm vaultenv-0.14.0-linux-musl \
     \
     # Cleanup
     && rm -rf /var/lib/apt/lists/* \
