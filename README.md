@@ -17,8 +17,8 @@ It also comes pre-baked with some tools and extensions
 
 | Name | Version | Link |
 |--|--|--|
-| Timescale | 2.4.2 | https://www.timescale.com |
-| PostGIS | 3.1.4 | https://postgis.net |
+| Timescale | 2.5.1 | https://www.timescale.com |
+| PostGIS | 3.2.0 | https://postgis.net |
 | pgRouting | 3.2.1 | https://pgrouting.org |
 | postgres-json-schema | 0.1.1 | https://github.com/gavinwahl/postgres-json-schema |
 | vector | 0.2.2 | https://github.com/ankane/pgvector |
@@ -76,7 +76,7 @@ EOL
       }
 
       config {
-        image = "ccakes/nomad-pgsql-patroni:14.0-1.gis"
+        image = "ccakes/nomad-pgsql-patroni:14.1-1.tsdb_gis"
 
         ports = ["api", "pg"]
       }
