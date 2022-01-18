@@ -8,24 +8,24 @@ It also comes pre-baked with some tools and extensions
 
 | Name | Version | Link |
 |--|--|--|
-| awscli | 1.19.91 | https://pypi.org/project/awscli/ |
-| WAL-G | 1.0 | https://github.com/wal-g/wal-g |
-| Patroni | 2.0.2 | https://github.com/zalando/patroni |
-| vaultenv | 0.13.1 | https://github.com/channable/vaultenv |
+| awscli | 1.22.37 | https://pypi.org/project/awscli/ |
+| WAL-G | 1.1 | https://github.com/wal-g/wal-g |
+| Patroni | 2.1.2 | https://github.com/zalando/patroni |
+| vaultenv | 0.14.0 | https://github.com/channable/vaultenv |
 
 ### Extensions
 
 | Name | Version | Link |
 |--|--|--|
-| Timescale | 2.3.0 | https://www.timescale.com |
-| PostGIS | 3.1.2 | https://postgis.net |
-| pgRouting | 3.1.3 | https://pgrouting.org |
+| Timescale | 2.5.1 | https://www.timescale.com |
+| PostGIS | 3.2.0 | https://postgis.net |
+| pgRouting | 3.2.1 | https://pgrouting.org |
 | postgres-json-schema | 0.1.1 | https://github.com/gavinwahl/postgres-json-schema |
-| vector | 0.1.6 | https://github.com/ankane/pgvector |
+| vector | 0.2.2 | https://github.com/ankane/pgvector |
 
-### Still running Postgres 11?
+### Running another version of Postgres?
 
-See the [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11) branch for a maintained version. Also see [`master](https://github.com/ccakes/nomad-pgsql-patroni) for shiny new Postgres v13! :sparkles:
+See the [`pg-11`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-11) or [`pg-13`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-12) branch for other Postgres versions. Otherwise, jump to [`master`](https://github.com/ccakes/nomad-pgsql-patroni) for the latest and greatest! :sparkles:
 
 ## Usage
 ```hcl
@@ -67,7 +67,7 @@ EOL
       }
 
       config {
-        image = "ccakes/nomad-pgsql-patroni:12.4-1.tsdb_gis"
+        image = "ccakes/nomad-pgsql-patroni:12.9-1.tsdb_gis"
 
         port_map {
           pg = 5432
