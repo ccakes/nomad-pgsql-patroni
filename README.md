@@ -8,7 +8,7 @@ It also comes pre-baked with some tools and extensions
 
 | Name | Version | Link |
 |--|--|--|
-| awscli | 1.19.91 | https://pypi.org/project/awscli/ |
+| awscli | 1.22.37 | https://pypi.org/project/awscli/ |
 | WAL-G | 1.1 | https://github.com/wal-g/wal-g |
 | Patroni | 2.1.2 | https://github.com/zalando/patroni |
 | vaultenv | 0.14.0 | https://github.com/channable/vaultenv |
