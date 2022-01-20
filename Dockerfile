@@ -74,6 +74,7 @@ RUN set -x \
         timescaledb-$TIMESCALEDB_MAJOR-postgresql-$PG_MAJOR \
         postgis \
         postgresql-$PG_MAJOR-pgrouting \
+        postgresql-$PG_MAJOR-cron \
     \
     # Install Patroni
     && apt-get install -y --no-install-recommends \

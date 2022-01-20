@@ -19,6 +19,7 @@ It also comes pre-baked with some tools and extensions
 |--|--|--|
 | Timescale | 2.5.1 | https://www.timescale.com |
 | PostGIS | 3.2.0 | https://postgis.net |
+| pg_cron | 1.4 | https://github.com/citusdata/pg_cron |
 | pgRouting | 3.2.1 | https://pgrouting.org |
 | postgres-json-schema | 0.1.1 | https://github.com/gavinwahl/postgres-json-schema |
 | vector | 0.2.2 | https://github.com/ankane/pgvector |
