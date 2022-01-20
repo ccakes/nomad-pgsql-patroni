@@ -67,8 +67,8 @@ restapi:
   connect_address: {{env "NOMAD_ADDR_api"}}
 
 consul:
-host: localhost
-register_service: true
+  host: localhost
+  register_service: true
 
 # bootstrap config
 EOL
