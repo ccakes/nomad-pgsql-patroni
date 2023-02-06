@@ -24,18 +24,14 @@ It also comes pre-baked with some tools and extensions
 | postgres-json-schema | 0.1.1 | https://github.com/gavinwahl/postgres-json-schema |
 | vector | 0.4.0 | https://github.com/ankane/pgvector |
 
-### Still running an older Postgres version?
+### Running another version of Postgres?
 
-These branches are *mostly* supported containing older versions. If I get behind on a point release feel free to raise an issue :thumbsup:
-
-- [`pg-14`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-14)
-- [`pg-13`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-13)
-- [`pg-12`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-12)
+See the [`pg-12`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-12) or [`pg-13`](https://github.com/ccakes/nomad-pgsql-patroni/tree/pg-13) branches for other Postgres versions. Otherwise, jump to [`master`](https://github.com/ccakes/nomad-pgsql-patroni) for the latest and greatest! :sparkles:
 
 ## Usage
 
 ```hcl
-job "postgres-15" {
+job "postgres-14" {
   type = "service"
   datacenters = ["dc1"]
 
@@ -71,7 +67,7 @@ EOL
       }
 
       config {
-        image = "ccakes/nomad-pgsql-patroni:15.1-1.tsdb_gis"
+        image = "ccakes/nomad-pgsql-patroni:14.6-1.tsdb_gis"
 
         ports = ["api", "pg"]
       }
