@@ -71,7 +71,7 @@ EOL
       }
 
       config {
-        image = "ccakes/nomad-pgsql-patroni:15.1-1.tsdb_gis"
+        image = "ghcr.io/ccakes/nomad-pgsql-patroni:15.1-2.tsdb_gis"
 
         ports = ["api", "pg"]
       }
