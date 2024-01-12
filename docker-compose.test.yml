@@ -9,7 +9,7 @@ services:
   # patroni
   patroni:
     build: .
-    image: ccakes/nomad-pgsql-patroni:15.1-1.tsdb_gis
+    image: nomad-pgsql-patroni:16.1-1.tsdb_gis
     environment:
       PGDATA: /alloc/data
     ports:

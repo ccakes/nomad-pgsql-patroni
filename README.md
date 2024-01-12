@@ -17,12 +17,13 @@ It also comes pre-baked with some tools and extensions
 
 | Name | Version | Link |
 |--|--|--|
-| Timescale | 2.9.2 | https://www.timescale.com |
-| PostGIS | 3.3.2 | https://postgis.net |
-| pg_cron | 1.4 | https://github.com/citusdata/pg_cron |
-| pgRouting | 3.4.2 | https://pgrouting.org |
+| Timescale | 2.13 | https://www.timescale.com |
+| PostGIS | 3.4.1 | https://postgis.net |
+| pg_cron | 1.6 | https://github.com/citusdata/pg_cron |
+| pg_idkit | 0.2.1 | https://github.com/VADOSWARE/pg_idkit |
+| pgRouting | 3.6.1 | https://pgrouting.org |
 | postgres-json-schema | 0.1.1 | https://github.com/gavinwahl/postgres-json-schema |
-| vector | 0.4.0 | https://github.com/ankane/pgvector |
+| vector | 0.5.1 | https://github.com/ankane/pgvector |
 
 ### Still running an older Postgres version?
 
@@ -35,7 +36,7 @@ These branches are *mostly* supported containing older versions. If I get behind
 ## Usage
 
 ```hcl
-job "postgres-15" {
+job "postgres-16" {
   type = "service"
   datacenters = ["dc1"]
 
@@ -71,7 +72,7 @@ EOL
       }
 
       config {
-        image = "ghcr.io/ccakes/nomad-pgsql-patroni:15.1-2.tsdb_gis"
+        image = "ghcr.io/ccakes/nomad-pgsql-patroni:16.1-1.tsdb_gis"
 
         ports = ["api", "pg"]
       }

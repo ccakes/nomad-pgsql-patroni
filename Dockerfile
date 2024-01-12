@@ -1,5 +1,5 @@
 ARG GO_VERSION=1.19
-ARG PG_MAJOR=15
+ARG PG_MAJOR=16
 ARG TIMESCALEDB_MAJOR=2
 ARG POSTGIS_MAJOR=3
 
@@ -26,7 +26,7 @@ RUN mkdir -p ${GOPATH}/src/github.com/timescale/ \
 ############################
 # Build Postgres extensions
 ############################
-FROM postgres:15.1 AS ext_build
+FROM postgres:16.1 AS ext_build
 ARG PG_MAJOR
 
 RUN set -x \
@@ -36,7 +36,7 @@ RUN set -x \
     && cd /build \
     \
     # Build pgvector
-    && git clone --branch v0.4.0 https://github.com/ankane/pgvector.git \
+    && git clone --branch v0.5.1 https://github.com/ankane/pgvector.git \
     && cd pgvector \
     && make \
     && make install \
@@ -46,28 +46,33 @@ RUN set -x \
     && git clone https://github.com/gavinwahl/postgres-json-schema \
     && cd postgres-json-schema \
     && make \
-    && make install
+    && make install \
+    \
+    # Download pg_idkit
+    && curl -LO https://github.com/VADOSWARE/pg_idkit/releases/download/v0.2.1/pg_idkit-0.2.1-pg16-gnu.tar.gz \
+    && tar xf pg_idkit-0.2.1-pg16-gnu.tar.gz \
+    && cp -r pg_idkit-0.2.1/lib/postgresql/* /usr/lib/postgresql/16/lib/ \
+    && cp -r pg_idkit-0.2.1/share/postgresql/extension/* /usr/share/postgresql/16/extension/
 
 ############################
 # Add Timescale, PostGIS and Patroni
 ############################
-FROM postgres:15.1
+FROM postgres:16.1
 ARG PG_MAJOR
 ARG POSTGIS_MAJOR
 ARG TIMESCALEDB_MAJOR
 
 # Add extensions
 COPY --from=tools /go/bin/* /usr/local/bin/
-COPY --from=ext_build /usr/share/postgresql/15/ /usr/share/postgresql/15/
-COPY --from=ext_build /usr/lib/postgresql/15/ /usr/lib/postgresql/15/
+COPY --from=ext_build /usr/share/postgresql/16/ /usr/share/postgresql/16/
+COPY --from=ext_build /usr/lib/postgresql/16/ /usr/lib/postgresql/16/
 
 RUN set -x \
     && apt-get update -y \
     && apt-get install -y gcc curl procps python3-dev libpython3-dev libyaml-dev apt-transport-https ca-certificates \
-    && echo "deb https://packagecloud.io/timescale/timescaledb/debian/ bullseye main" > /etc/apt/sources.list.d/timescaledb.list \
+    && echo "deb https://packagecloud.io/timescale/timescaledb/debian/ bookworm main" > /etc/apt/sources.list.d/timescaledb.list \
     && curl -L https://packagecloud.io/timescale/timescaledb/gpgkey | apt-key add - \
     && apt-get update -y \
-    && apt-cache showpkg postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
     && apt-get install -y --no-install-recommends \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
         postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts \
@@ -77,12 +82,7 @@ RUN set -x \
         postgresql-$PG_MAJOR-cron \
     \
     # Install Patroni
-    && apt-get install -y --no-install-recommends \
-        python3 python3-pip python3-setuptools \
-    && pip3 install --upgrade pip \
-    && pip3 install wheel zipp==1.0.0 \
-    && pip3 install awscli python-consul psycopg2-binary \
-    && pip3 install https://github.com/zalando/patroni/archive/v3.0.0.zip \
+    && apt-get install -y --no-install-recommends patroni python3-consul \
     \
     # Install WAL-G
     && curl -LO https://github.com/wal-g/wal-g/releases/download/v2.0.1/wal-g-pg-ubuntu-20.04-amd64 \
