@@ -17,7 +17,7 @@ It also comes pre-baked with some tools and extensions
 
 | Name | Version | Link |
 |--|--|--|
-| Timescale | 2.13 | https://www.timescale.com |
+| Timescale | 2.13.1 | https://www.timescale.com |
 | PostGIS | 3.4.1 | https://postgis.net |
 | pg_cron | 1.6 | https://github.com/citusdata/pg_cron |
 | pg_idkit | 0.2.1 | https://github.com/VADOSWARE/pg_idkit |
@@ -72,7 +72,7 @@ EOL
       }
 
       config {
-        image = "ghcr.io/ccakes/nomad-pgsql-patroni:16.1-1.tsdb_gis"
+        image = "ghcr.io/ccakes/nomad-pgsql-patroni:16.2-1.tsdb_gis"
 
         ports = ["api", "pg"]
       }
